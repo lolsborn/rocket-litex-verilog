@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/bash
 
 # update.sh: Update Rocket Chip Verilog files for the LiteX SoC.
 #
@@ -30,7 +30,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-PATH=/usr/bin:${HOME}/RISCV/bin
+#PATH=/usr/bin:${HOME}/RISCV/bin
 
 # grab a copy of upstream:
 rm -rf rocket-chip
@@ -71,6 +71,16 @@ cat >> rocket-chip/src/main/scala/system/Configs.scala <<- "EOT"
 	  new BaseConfig
 	)
 
+  	class Litex32Config extends Config(
+	  new WithLitexMemPort() ++
+	  new WithLitexMMIOPort() ++
+	  new WithNoSlavePort ++
+	  new WithNExtTopInterrupts(4) ++
+	  new WithNSmallCores(1) ++
+	  new WithRV32 ++
+      	  new BaseConfig()
+	)
+
 	class LitexConfig extends Config(
 	  new WithNSmallCores(1) ++
 	  new BaseLitexConfig
@@ -86,7 +96,7 @@ cat >> rocket-chip/src/main/scala/system/Configs.scala <<- "EOT"
 	  new BaseLitexConfig
 	)
 	EOT
-for CFG in LitexConfig LitexLinuxConfig LitexFullConfig; do
+for CFG in Litex32Config LitexConfig LitexLinuxConfig LitexFullConfig; do
   make RISCV=${HOME}/RISCV -C rocket-chip/vsim verilog CONFIG=${CFG}
 done
 
